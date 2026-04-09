@@ -1,0 +1,258 @@
+type VerificationStatus = 
+ variant {
+   pending;
+   rejected;
+   verified;
+ };
+type UserId = principal;
+type Timestamp = int;
+type StripePayment = 
+ record {
+   amount: nat;
+   createdAt: Timestamp;
+   currency: text;
+   paidAt: opt Timestamp;
+   paymentIntentId: text;
+   status: PaymentStatus;
+ };
+type Result_5 = 
+ variant {
+   err: text;
+   ok: text;
+ };
+type Result_4 = 
+ variant {
+   err: text;
+   ok: DocumentRecord;
+ };
+type Result_3 = 
+ variant {
+   err: text;
+   ok: CibilRecord;
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: KycRecord;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: LoanApplication;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok: CustomerProfile;
+ };
+type PaymentStatus = 
+ variant {
+   failed;
+   paid;
+   pending;
+   refunded;
+ };
+type LoanPurpose = 
+ variant {
+   business;
+   education;
+   home;
+   medical;
+   other: text;
+   personal;
+   vehicle;
+ };
+type LoanApplicationInput = 
+ record {
+   amountRequested: nat;
+   purpose: LoanPurpose;
+   tenureMonths: nat;
+ };
+type LoanApplication = 
+ record {
+   adminNotes: opt text;
+   amountRequested: nat;
+   approvedAmount: opt nat;
+   approvedAt: opt Timestamp;
+   cibilRecordId: opt text;
+   createdAt: Timestamp;
+   customerId: UserId;
+   disbursement: opt DisbursementRecord;
+   id: ApplicationId;
+   interestRate: opt float64;
+   processingFeePayment: opt StripePayment;
+   purpose: LoanPurpose;
+   rejectionReason: opt text;
+   status: ApplicationStatus;
+   submittedAt: opt Timestamp;
+   tenureMonths: nat;
+   updatedAt: Timestamp;
+ };
+type KycSubmitInput = 
+ record {
+   identityNumber: text;
+   identityType: IdentityType;
+ };
+type KycRecord = 
+ record {
+   customerId: UserId;
+   identityNumber: text;
+   identityType: IdentityType;
+   rejectionReason: opt text;
+   reviewedAt: opt Timestamp;
+   status: VerificationStatus;
+   submittedAt: Timestamp;
+ };
+type IdentityType = 
+ variant {
+   aadhaar;
+   drivingLicense;
+   pan;
+ };
+type DocumentUploadInput = 
+ record {
+   applicationId: opt ApplicationId;
+   docType: DocumentType;
+   fileReference: text;
+ };
+type DocumentType = 
+ variant {
+   addressProof;
+   bankStatement;
+   identityProof;
+   incomeProof;
+   other: text;
+   photograph;
+ };
+type DocumentRecord = 
+ record {
+   applicationId: opt ApplicationId;
+   customerId: UserId;
+   docType: DocumentType;
+   fileReference: text;
+   id: text;
+   rejectionReason: opt text;
+   status: VerificationStatus;
+   uploadedAt: Timestamp;
+ };
+type DisbursementRecord = 
+ record {
+   accountNumber: text;
+   amount: nat;
+   applicationId: ApplicationId;
+   bankName: text;
+   disbursedAt: Timestamp;
+   ifscCode: text;
+   referenceNumber: text;
+ };
+type DisbursementInput = 
+ record {
+   accountNumber: text;
+   bankName: text;
+   ifscCode: text;
+   referenceNumber: text;
+ };
+type CustomerProfileInput = 
+ record {
+   address: text;
+   email: text;
+   name: text;
+   phone: text;
+ };
+type CustomerProfile = 
+ record {
+   address: text;
+   createdAt: Timestamp;
+   email: text;
+   id: UserId;
+   name: text;
+   phone: text;
+   updatedAt: Timestamp;
+ };
+type CibilRecord = 
+ record {
+   checkedAt: Timestamp;
+   customerId: UserId;
+   isEligible: bool;
+   reportSummary: text;
+   requestId: text;
+   score: nat;
+ };
+type ApplicationSummary = 
+ record {
+   amountRequested: nat;
+   createdAt: Timestamp;
+   customerId: UserId;
+   customerName: text;
+   id: ApplicationId;
+   status: ApplicationStatus;
+   updatedAt: Timestamp;
+ };
+type ApplicationStatus = 
+ variant {
+   approved;
+   cibilPending;
+   disbursed;
+   documentsPending;
+   draft;
+   kycPending;
+   paymentPending;
+   rejected;
+   submitted;
+   underReview;
+ };
+type ApplicationId = text;
+type ApplicationFilter = 
+ variant {
+   all;
+   byCustomer: UserId;
+   byStatus: ApplicationStatus;
+ };
+type ApplicationDetails = 
+ record {
+   application: LoanApplication;
+   cibil: opt CibilRecord;
+   customer: opt CustomerProfile;
+   documents: vec DocumentRecord;
+   kyc: opt KycRecord;
+ };
+type AdminRejectInput = record {rejectionReason: text;};
+type AdminApproveInput = 
+ record {
+   adminNotes: opt text;
+   approvedAmount: nat;
+   interestRate: float64;
+ };
+service : {
+  addAdmin: (newAdmin: UserId) -> (Result_5);
+  addDocument: (input: DocumentUploadInput) -> (Result_4);
+  adminApproveApplication: (appId: ApplicationId, input:
+   AdminApproveInput) -> (Result_1);
+  adminGetApplicationDetails: (appId: ApplicationId) ->
+   (opt ApplicationDetails) query;
+  adminListApplications: (filterBy: ApplicationFilter) ->
+   (vec ApplicationSummary) query;
+  adminRecordDisbursement: (appId: ApplicationId, input:
+   DisbursementInput) -> (Result_1);
+  adminRejectApplication: (appId: ApplicationId, input: AdminRejectInput) ->
+   (Result_1);
+  adminReviewDocument: (docId: text, approved: bool, reason: opt text) ->
+   (Result_4);
+  adminReviewKyc: (customerId: UserId, approved: bool, reason: opt text) ->
+   (Result_2);
+  createCustomerProfile: (input: CustomerProfileInput) -> (Result);
+  createLoanApplication: (input: LoanApplicationInput) -> (Result_1);
+  getMyApplication: (appId: ApplicationId) -> (opt LoanApplication) query;
+  getMyCibilRecord: () -> (opt CibilRecord) query;
+  getMyDocuments: (applicationId: opt ApplicationId) ->
+   (vec DocumentRecord) query;
+  getMyKycStatus: () -> (opt KycRecord) query;
+  getMyProfile: () -> (opt CustomerProfile) query;
+  listMyApplications: () -> (vec LoanApplication) query;
+  recordCibilCheck: (customerId: UserId, score: nat, reportSummary: text,
+   requestId: text) -> (Result_3);
+  recordPayment: (appId: ApplicationId, payment: StripePayment) -> (Result_1);
+  submitKyc: (input: KycSubmitInput) -> (Result_2);
+  submitLoanApplication: (appId: ApplicationId) -> (Result_1);
+  updateCustomerProfile: (input: CustomerProfileInput) -> (Result);
+}

@@ -1,0 +1,25 @@
+{
+  "overview": "A professional loan provider platform that guides customers through the complete loan application journey — from KYC verification and document uploads to CIBIL credit checks, processing fee payment, and admin-controlled approval and disbursement management.",
+  "features": [
+    "Customer registration and login with KYC identity verification",
+    "Document uploads for identity proof, address proof, income proof, and bank statements",
+    "CIBIL credit score check and eligibility assessment",
+    "Loan application with amount, tenure, and purpose selection",
+    "Stripe payment gateway for processing fees",
+    "Customer dashboard showing real-time application status and approval details",
+    "Admin dashboard for reviewing applications, approving with custom loan amounts, and managing disbursements",
+    "Role-based access control for customers and admins"
+  ],
+  "category": "finance",
+  "tags": [
+    "loan",
+    "finance",
+    "kyc",
+    "cibil",
+    "payments",
+    "admin-dashboard",
+    "document-upload",
+    "credit-check"
+  ],
+  "last_updated": "2026-04-08T21:39:54.190Z"
+}

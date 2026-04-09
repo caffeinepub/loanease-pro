@@ -1,0 +1,165 @@
+// Version: 1.0.0
+type ApplicationId__484537891 = ApplicationId__702901380;
+type ApplicationId__702901380 = Text;
+type ApplicationStatus__26260872 =
+  {
+    #approved;
+    #cibilPending;
+    #disbursed;
+    #documentsPending;
+    #draft;
+    #kycPending;
+    #paymentPending;
+    #rejected;
+    #submitted;
+    #underReview
+  };
+type CibilRecord__326741997 =
+  {
+    checkedAt : Timestamp__652934168;
+    customerId : UserId__389232460;
+    isEligible : Bool;
+    reportSummary : Text;
+    requestId : Text;
+    score : Nat
+  };
+type CustomerProfile__557987623 =
+  {
+    address : Text;
+    createdAt : Timestamp__652934168;
+    email : Text;
+    id : UserId__389232460;
+    name : Text;
+    phone : Text;
+    updatedAt : Timestamp__652934168
+  };
+type Data__791452850<K, V> =
+  {var count : Nat__490723111; kvs : [var ?(K, V)]};
+type DisbursementRecord__346740206 =
+  {
+    accountNumber : Text;
+    amount : Nat;
+    applicationId : ApplicationId__484537891;
+    bankName : Text;
+    disbursedAt : Timestamp__652934168;
+    ifscCode : Text;
+    referenceNumber : Text
+  };
+type DocumentRecord__485212050 =
+  {
+    applicationId : ?ApplicationId__484537891;
+    customerId : UserId__389232460;
+    docType : DocumentType__657839967;
+    fileReference : Text;
+    id : Text;
+    rejectionReason : ?Text;
+    status : VerificationStatus__460924595;
+    uploadedAt : Timestamp__652934168
+  };
+type DocumentType__657839967 =
+  {
+    #addressProof;
+    #bankStatement;
+    #identityProof;
+    #incomeProof;
+    #other : Text;
+    #photograph
+  };
+type IdentityType__182117860 = {#aadhaar; #drivingLicense; #pan};
+type Internal__8484328<K, V> =
+  {children : [var ?Node__46230540<K, V>]; data : Data__791452850<K, V>};
+type KycRecord__368139291 =
+  {
+    customerId : UserId__389232460;
+    identityNumber : Text;
+    identityType : IdentityType__182117860;
+    rejectionReason : ?Text;
+    reviewedAt : ?Timestamp__652934168;
+    status : VerificationStatus__460924595;
+    submittedAt : Timestamp__652934168
+  };
+type Leaf__809889148<K, V> = {data : Data__791452850<K, V>};
+type LoanApplication__441013584 =
+  {
+    adminNotes : ?Text;
+    amountRequested : Nat;
+    approvedAmount : ?Nat;
+    approvedAt : ?Timestamp__652934168;
+    cibilRecordId : ?Text;
+    createdAt : Timestamp__652934168;
+    customerId : UserId__389232460;
+    disbursement : ?DisbursementRecord__346740206;
+    id : ApplicationId__484537891;
+    interestRate : ?Float;
+    processingFeePayment : ?StripePayment__929066090;
+    purpose : LoanPurpose__349408819;
+    rejectionReason : ?Text;
+    status : ApplicationStatus__26260872;
+    submittedAt : ?Timestamp__652934168;
+    tenureMonths : Nat;
+    updatedAt : Timestamp__652934168
+  };
+type LoanPurpose__349408819 =
+  {
+    #business;
+    #education;
+    #home;
+    #medical;
+    #other : Text;
+    #personal;
+    #vehicle
+  };
+type Nat__490723111 = Nat__920180692;
+type Nat__920180692 = Nat;
+type Node__46230540<K, V> =
+  {#internal : Internal__8484328<K, V>; #leaf : Leaf__809889148<K, V>};
+type PaymentStatus__632313879 = {#failed; #paid; #pending; #refunded};
+type StripePayment__929066090 =
+  {
+    amount : Nat;
+    createdAt : Timestamp__652934168;
+    currency : Text;
+    paidAt : ?Timestamp__652934168;
+    paymentIntentId : Text;
+    status : PaymentStatus__632313879
+  };
+type Timestamp__301639476 = Int;
+type Timestamp__652934168 = Timestamp__301639476;
+type UserId__158757552 = Principal;
+type UserId__389232460 = UserId__158757552;
+type VerificationStatus__460924595 = {#pending; #rejected; #verified};
+actor {
+  stable admins :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?UserId__389232460]];
+      var elementIndex : Nat__490723111
+    };
+  stable applications :
+    {
+      var root :
+        Node__46230540<ApplicationId__484537891, LoanApplication__441013584>;
+      var size : Nat__490723111
+    };
+  stable cibilRecords :
+    {
+      var root : Node__46230540<UserId__389232460, CibilRecord__326741997>;
+      var size : Nat__490723111
+    };
+  stable documents :
+    {
+      var blockIndex : Nat__490723111;
+      var blocks : [var [var ?DocumentRecord__485212050]];
+      var elementIndex : Nat__490723111
+    };
+  stable kycRecords :
+    {
+      var root : Node__46230540<UserId__389232460, KycRecord__368139291>;
+      var size : Nat__490723111
+    };
+  stable profiles :
+    {
+      var root : Node__46230540<UserId__389232460, CustomerProfile__557987623>;
+      var size : Nat__490723111
+    }
+};
